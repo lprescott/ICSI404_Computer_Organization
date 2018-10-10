@@ -31,6 +31,12 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	} 
 	else if (strcmp("addimmediate",keyWord) == 0) {
+		bytes[0] = 0x90;
+		bytes[0] |= getRegister(strtok(NULL," "));
+		
+		bytes[1] = (unsigned char) atoi(strtok(NULL, " "));
+		printf("#: \"%d\"\n", bytes[1]);
+		
 		return 2;
 	}
 	else if (strcmp("and",keyWord) == 0) {
