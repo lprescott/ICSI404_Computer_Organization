@@ -34,6 +34,9 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("and",keyWord) == 0) {
+		bytes[0] = 0x20;
+		bytes[0] |= getRegister(strtok(NULL," "));
+		bytes[1] = getRegister(strtok(NULL," ")) << 4 | getRegister(strtok(NULL," "));
 		return 2;
 	}
 	else if (strcmp("branchifequal",keyWord) == 0) {
@@ -43,9 +46,13 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 4;
 	}
 	else if (strcmp("divide",keyWord) == 0) {
+		bytes[0] = 0x30;
 		return 2;
 	}
 	else if (strcmp("halt",keyWord) == 0) {
+		bytes[0] = 0x00;
+		bytes[0] |= getRegister(strtok(NULL," "));
+		bytes[1] = getRegister(strtok(NULL," ")) << 4 | getRegister(strtok(NULL," "));
 		return 2;
 	}
 	else if (strcmp("interrupt",keyWord) == 0) {
@@ -64,9 +71,15 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("multiply",keyWord) == 0) {
+		bytes[0] = 0x40;
+		bytes[0] |= getRegister(strtok(NULL," "));
+		bytes[1] = getRegister(strtok(NULL," ")) << 4 | getRegister(strtok(NULL," "));
 		return 2;
 	}
 	else if (strcmp("or",keyWord) == 0) {
+		bytes[0] = 0x60;
+		bytes[0] |= getRegister(strtok(NULL," "));
+		bytes[1] = getRegister(strtok(NULL," ")) << 4 | getRegister(strtok(NULL," "));
 		return 2;
 	}
 	else if (strcmp("rightshift",keyWord) == 0) {
@@ -76,6 +89,9 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("subtract",keyWord) == 0) {
+		bytes[0] = 0x50;
+		bytes[0] |= getRegister(strtok(NULL," "));
+		bytes[1] = getRegister(strtok(NULL," ")) << 4 | getRegister(strtok(NULL," "));
 		return 2;
 	} 
 	else {
