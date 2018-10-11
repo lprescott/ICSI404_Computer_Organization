@@ -81,6 +81,8 @@ int assembleLine(char *text, unsigned char* bytes) {
 	}
 	else if (strcmp("divide",keyWord) == 0) {
 		bytes[0] = 0x30;
+		bytes[0] |= getRegister(strtok(NULL," "));
+		bytes[1] = getRegister(strtok(NULL," ")) << 4 | getRegister(strtok(NULL," "));
 		return 2;
 	}
 	else if (strcmp("halt",keyWord) == 0) {
