@@ -31,9 +31,17 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	} 
 	else if (strcmp("addimmediate",keyWord) == 0) {
+		//first byte
+		//shifted opcode
 		bytes[0] = 0x90;
+		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL," "));
+
+		//second byte
+		//fill the second byte with the integer following addi
 		bytes[1] = atoi(strtok(NULL, " "));
+
+		//number of bytes in instruction
 		return 2;
 	}
 	else if (strcmp("and",keyWord) == 0) {
@@ -69,7 +77,7 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 4;
 	}
 	else if (strcmp("branchifless",keyWord) == 0) {
-		//see comments for branchifequal (above)
+		//see comments for branchifequal (above) for logic
 		bytes[0] = 0xB0; 
 		bytes[0] |= getRegister(strtok(NULL, " ")); 
 		bytes[1] = getRegister(strtok(NULL," ")) << 4;
@@ -92,6 +100,10 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("interrupt",keyWord) == 0) {
+		bytes[0] = 0x80;
+		int temp = atoi(strtok(NULL, " "));
+		bytes[0] |= (temp >> 8) & 0x0F;
+		bytes[1] = temp;
 		return 2;
 	}
 	else if (strcmp("iterateover",keyWord) == 0) {
@@ -148,7 +160,7 @@ int main(int argc, char **argv) {
 			int byteCount = assembleLine(line,bytes);
 			//If no instruction was recognized, print error, and return -1
 			if (byteCount == 0) {
-				printf ("unknown instrution: %s\n", ltrim(strtok(line," ")));
+				printf ("unknown instrution: %s\n", strtok(ltrim(line)," "));
 				return -1;
 			}
 			fwrite(bytes,byteCount,1,dst);
