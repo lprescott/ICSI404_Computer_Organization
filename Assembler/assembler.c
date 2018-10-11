@@ -69,6 +69,14 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 4;
 	}
 	else if (strcmp("branchifless",keyWord) == 0) {
+		//see comments for branchifequal (above)
+		bytes[0] = 0xB0; 
+		bytes[0] |= getRegister(strtok(NULL, " ")); 
+		bytes[1] = getRegister(strtok(NULL," ")) << 4;
+		int temp = atoi(strtok(NULL, " "));
+		bytes[1] |= (temp >> 16) & 0x0F;
+		bytes[2] = (temp >> 8);
+		bytes[3] = temp;
 		return 4;
 	}
 	else if (strcmp("divide",keyWord) == 0) {
