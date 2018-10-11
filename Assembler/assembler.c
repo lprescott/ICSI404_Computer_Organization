@@ -142,13 +142,61 @@ int assembleLine(char *text, unsigned char* bytes) {
 		//number of bytes in instruction
 		return 4;
 	}
-	else if (strcmp("jump",keyWord) == 0) {
+	else if (strcmp("jump",keyWord) == 0) { 
+		//first byte
+		//shifted opcode
+		bytes[0] = 0xC0;
+		//create a temporary int holding the address offset
+		int temp = atoi(strtok(NULL, " "));
+		//set the second 4 bits of the instructions, from the top 4 of offset
+		bytes[0] |= (temp >> 24) & 0x0F;
+
+		//second byte
+		//shift the offset by 16 and fill the unsigned char with #
+		bytes[1] = (temp >> 16);
+
+		//third byte
+		//shift the offset by 8 and fill the unsigned char with #
+		bytes[2] = (temp >> 8);
+
+		//fill the unsigned char with #
+		bytes[3] = temp;
+
+		//number of bytes in instruction
 		return 4;
 	}
 	else if (strcmp("leftshift",keyWord) == 0) {
+		//first byte
+		//shifted opcode
+		bytes[0] = 0x70;
+		//or the opcode with the first register's #
+		bytes[0] |= getRegister(strtok(NULL, " ")); 
+
+		//second byte
+		//default to 0 for leftshift
+		bytes[1] = 0x00;
+		//create a temporary int holding the address offset
+		int temp = atoi(strtok(NULL, " "));
+		//or the second byte with the offset
+		bytes[1] |= temp;
+
+		//number of bytes in instruction
 		return 2;
 	}
 	else if (strcmp("load",keyWord) == 0) {
+		//first byte
+		//shifted opcode
+		bytes[0] = 0xE0;
+		//or the opcode with the first register's #
+		bytes[0] |= getRegister(strtok(NULL, " ")); 
+
+		//second byte
+		//shifted second register
+		bytes[1] = getRegister(strtok(NULL," ")) << 4;
+		//or the second register with the offset
+		bytes[1] |= atoi(strtok(NULL, " "));
+
+		//number of bytes in instruction
 		return 2;
 	}
 	else if (strcmp("multiply",keyWord) == 0) {
@@ -164,9 +212,39 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("rightshift",keyWord) == 0) {
+		//first byte
+		//shifted opcode
+		bytes[0] = 0x70;
+
+		//or the opcode with the first register's #
+		bytes[0] |= getRegister(strtok(NULL, " ")); 
+
+		//second byte
+		//default to 2 for rightshift 
+		bytes[1] = 0x20;
+		//create a temporary int holding the address offset
+		int temp = atoi(strtok(NULL, " "));
+		//or the second byte with the offset
+		bytes[1] |= temp;
+
+		//number of bytes in instruction
 		return 2;
 	}
 	else if (strcmp("store",keyWord) == 0) {
+		//first byte
+		//shifted opcode
+		bytes[0] = 0xF0;
+
+		//or the opcode with the first register's #
+		bytes[0] |= getRegister(strtok(NULL, " ")); 
+
+		//second byte
+		//shifted second register
+		bytes[1] = getRegister(strtok(NULL," ")) << 4;
+		//or the second register with the offset
+		bytes[1] |= atoi(strtok(NULL, " "));
+
+		//number of bytes in instruction
 		return 2;
 	}
 	else if (strcmp("subtract",keyWord) == 0) {
