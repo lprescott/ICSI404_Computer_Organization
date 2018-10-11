@@ -43,6 +43,29 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("branchifequal",keyWord) == 0) {
+		//first byte
+		//shifted opcode
+		bytes[0] = 0xA0; 
+		//or the opcode with the first register's #
+		bytes[0] |= getRegister(strtok(NULL, " ")); 
+
+		//second byte
+		//shifted second register
+		bytes[1] = getRegister(strtok(NULL," ")) << 4;
+		//create a temporary in holding the address offset
+		int temp = atoi(strtok(NULL, " "));
+		//or the second opcode with ONLY the second 4 bits of first byte
+		bytes[1] |= (temp >> 16) & 0x0F;
+
+		//third byte
+		//shift the address offset by 8 and fill the unsigned char with #
+		bytes[2] = (temp >> 8);
+
+		//fourth byte
+		//fill the unsigned char with #
+		bytes[3] = temp;
+
+		//number of bytes in instruction
 		return 4;
 	}
 	else if (strcmp("branchifless",keyWord) == 0) {
