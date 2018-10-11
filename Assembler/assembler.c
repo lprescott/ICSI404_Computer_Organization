@@ -60,9 +60,9 @@ int assembleLine(char *text, unsigned char* bytes) {
 		//second byte
 		//shifted second register
 		bytes[1] = getRegister(strtok(NULL," ")) << 4;
-		//create a temporary in holding the address offset
+		//create a temporary int holding the address offset
 		int temp = atoi(strtok(NULL, " "));
-		//or the second opcode with ONLY the second 4 bits of first byte
+		//or the second opcode with ONLY the first 4 bits of the address offset
 		bytes[1] |= (temp >> 16) & 0x0F;
 
 		//third byte
@@ -100,13 +100,46 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("interrupt",keyWord) == 0) {
+		//first byte
+		//shifted opcode
 		bytes[0] = 0x80;
+		//create a temporary int holding the address offset
 		int temp = atoi(strtok(NULL, " "));
+
+		//or the  opcode with ONLY the first 4 bits of the supplied int
 		bytes[0] |= (temp >> 8) & 0x0F;
+
+		//second byte
+		//fill the unsigned char with #
 		bytes[1] = temp;
+
+		//number of bytes in instruction
 		return 2;
 	}
 	else if (strcmp("iterateover",keyWord) == 0) {
+		//first byte
+		//shifted opcode
+		bytes[0] = 0xD0;
+		//or the opcode with the first register's #
+		bytes[0] |= getRegister(strtok(NULL, " ")); 
+		//create a temporary int holding the offset
+		int temp = atoi(strtok(NULL, " "));
+
+		//second byte
+		//fill the unsigned char with #
+		bytes[1] = temp;
+
+		//third byte
+		//set temp to next offset
+		temp = atoi(strtok(NULL, " "));
+		//shift the offset by 8 and fill the unsigned char with #
+		bytes[2] = temp >> 8;
+
+		//fourth byte
+		//fill the unsigned char with #
+		bytes[3] = temp;
+
+		//number of bytes in instruction
 		return 4;
 	}
 	else if (strcmp("jump",keyWord) == 0) {
@@ -160,7 +193,7 @@ int main(int argc, char **argv) {
 			int byteCount = assembleLine(line,bytes);
 			//If no instruction was recognized, print error, and return -1
 			if (byteCount == 0) {
-				printf ("unknown instrution: %s\n", strtok(ltrim(line)," "));
+				printf ("unknown instrution: %s\nExiting...\n", strtok(ltrim(line)," "));
 				return -1;
 			}
 			fwrite(bytes,byteCount,1,dst);
