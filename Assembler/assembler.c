@@ -95,8 +95,7 @@ int assembleLine(char *text, unsigned char* bytes) {
 	}
 	else if (strcmp("halt",keyWord) == 0) {
 		bytes[0] = 0x00;
-		bytes[0] |= getRegister(strtok(NULL," "));
-		bytes[1] = getRegister(strtok(NULL," ")) << 4 | getRegister(strtok(NULL," "));
+		bytes[1] = 0x00;
 		return 2;
 	}
 	else if (strcmp("interrupt",keyWord) == 0) {
@@ -261,7 +260,7 @@ int assembleLine(char *text, unsigned char* bytes) {
 
 int main(int argc, char **argv) {
 	FILE *src = fopen(argv[1],"r");
-	FILE *dst = fopen(argv[2],"w");
+	FILE *dst = fopen(argv[2],"wb"); //Note the change from w, to wb 
 	while (!feof(src)) {
 		unsigned char bytes[4];
 		char line[1000];
