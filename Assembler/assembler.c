@@ -164,8 +164,8 @@ int assembleLine(char *text, unsigned char* bytes) {
 		bytes[1] = 0x00;
 		//create a temporary int holding the address offset
 		int temp = atoi(strtok(NULL, " "));
-		//or the second byte with the offset
-		bytes[1] |= temp;
+		//or the second byte with 5-bits of offset
+		bytes[1] |= temp & 0x1F;
 
 		//number of bytes in instruction
 		return 2;
@@ -208,8 +208,8 @@ int assembleLine(char *text, unsigned char* bytes) {
 		bytes[1] = 0x20;
 		//create a temporary int holding the address offset
 		int temp = atoi(strtok(NULL, " "));
-		//or the second byte with the offset
-		bytes[1] |= temp;
+		//or the second byte with 5-bits of offset
+		bytes[1] |= temp & 0x1F;
 
 		//number of bytes in instruction
 		return 2;
