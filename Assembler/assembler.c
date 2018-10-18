@@ -31,13 +31,12 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	} 
 	else if (strcmp("addimmediate",keyWord) == 0) {
-		//first byte
-		//shifted opcode
+		
+		//shifted opcode (9)
 		bytes[0] = 0x90;
 		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL," "));
 
-		//second byte
 		//fill the second byte with the integer following addi
 		bytes[1] = atoi(strtok(NULL, " "));
 
@@ -51,25 +50,22 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("branchifequal",keyWord) == 0) {
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0xA0; 
 		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL, " ")); 
-
-		//second byte
+		
 		//shifted second register
 		bytes[1] = getRegister(strtok(NULL," ")) << 4;
 		//create a temporary int holding the address offset
 		int temp = atoi(strtok(NULL, " "));
 		//or the second opcode with ONLY the first 4 bits of the address offset
 		bytes[1] |= (temp >> 16) & 0x0F;
-
-		//third byte
+		
 		//shift the address offset by 8 and fill the unsigned char with #
 		bytes[2] = (temp >> 8);
-
-		//fourth byte
+		
 		//fill the unsigned char with #
 		bytes[3] = temp;
 
@@ -99,16 +95,14 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("interrupt",keyWord) == 0) {
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0x80;
 		//create a temporary int holding the address offset
 		int temp = atoi(strtok(NULL, " "));
-
 		//or the  opcode with ONLY the first 4 bits of the supplied int
 		bytes[0] |= (temp >> 8) & 0x0F;
-
-		//second byte
+		
 		//fill the unsigned char with #
 		bytes[1] = temp;
 
@@ -116,25 +110,22 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("iterateover",keyWord) == 0) {
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0xD0;
 		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL, " ")); 
-		//create a temporary int holding the offset
-		int temp = atoi(strtok(NULL, " "));
 
-		//second byte
+		//create a temporary int holding the next pointer offset
+		int temp = atoi(strtok(NULL, " "));
 		//fill the unsigned char with #
 		bytes[1] = temp;
 
-		//third byte
-		//set temp to next offset
+		//set temp to next num (jump address offset)
 		temp = atoi(strtok(NULL, " "));
-		//shift the offset by 8 and fill the unsigned char with #
+		//shift the num by 8 and fill the unsigned char with #
 		bytes[2] = temp >> 8;
-
-		//fourth byte
+		
 		//fill the unsigned char with #
 		bytes[3] = temp;
 
@@ -142,7 +133,7 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 4;
 	}
 	else if (strcmp("jump",keyWord) == 0) { 
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0xC0;
 		//create a temporary int holding the address offset
@@ -150,11 +141,9 @@ int assembleLine(char *text, unsigned char* bytes) {
 		//set the second 4 bits of the instructions, from the top 4 of offset
 		bytes[0] |= (temp >> 24) & 0x0F;
 
-		//second byte
 		//shift the offset by 16 and fill the unsigned char with #
 		bytes[1] = (temp >> 16);
 
-		//third byte
 		//shift the offset by 8 and fill the unsigned char with #
 		bytes[2] = (temp >> 8);
 
@@ -165,13 +154,12 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 4;
 	}
 	else if (strcmp("leftshift",keyWord) == 0) {
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0x70;
 		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL, " ")); 
 
-		//second byte
 		//default to 0 for leftshift
 		bytes[1] = 0x00;
 		//create a temporary int holding the address offset
@@ -183,13 +171,12 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("load",keyWord) == 0) {
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0xE0;
 		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL, " ")); 
 
-		//second byte
 		//shifted second register
 		bytes[1] = getRegister(strtok(NULL," ")) << 4;
 		//or the second register with the offset
@@ -211,14 +198,12 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("rightshift",keyWord) == 0) {
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0x70;
-
 		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL, " ")); 
-
-		//second byte
+		
 		//default to 2 for rightshift 
 		bytes[1] = 0x20;
 		//create a temporary int holding the address offset
@@ -230,14 +215,12 @@ int assembleLine(char *text, unsigned char* bytes) {
 		return 2;
 	}
 	else if (strcmp("store",keyWord) == 0) {
-		//first byte
+		
 		//shifted opcode
 		bytes[0] = 0xF0;
-
 		//or the opcode with the first register's #
 		bytes[0] |= getRegister(strtok(NULL, " ")); 
 
-		//second byte
 		//shifted second register
 		bytes[1] = getRegister(strtok(NULL," ")) << 4;
 		//or the second register with the offset
