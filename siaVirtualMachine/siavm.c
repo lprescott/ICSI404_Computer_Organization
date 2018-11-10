@@ -94,14 +94,33 @@ int load(char * filename){
   return 1;
 }
 
+/*
+  Read 2 bytes from memory. 
+  Store them in an internal array of bytes, currentInstruction.
+*/
 int fetch(){
 
 }
 
+/*
+  Read only from the array of bytes from fetch. 
+  Populate the OP1 and OP2 registers if appropriate. 
+  Fetch any additional memory needed to complete the instruction.
+*/
 int dispatch(){
 
 }
 
+/*
+  Switch statement that “does the work” and stores the work into Result
+*/
+int execute(){
+
+}
+
+/*
+  Write result into final register or memory address.
+*/
 int store(){
 
 }
