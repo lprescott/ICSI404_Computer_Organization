@@ -22,16 +22,47 @@
 unsigned char * memory; 
 
 /*
-  The program counter internal register, starting at 0, using a float as to 
-  replicate the 4 byte registers of the emulated cpu.
-*/
-float pc = 0;
+  The program counter internal register, starting at 0, using a unsigned char
+  as to replicate the 4 bit registers of the emulated cpu.
 
+  The op1, and op2 registers, are long unsigned ints as to be able to store 
+  the largest possible operands in the sia instruction set.
+
+  result is an unsigned int, as it must be stored in a register for multiple 
+  instructions.
+*/
+unsigned char PC = 0;
+long unsigned int op1;
+long unsigned int op2;
+unsigned char result;
+
+/*
+  Other registers: unsigned chars as to hold the maximum values of 4 bits.
+*/
+unsigned char r0;
+unsigned char r1;
+unsigned char r2;
+unsigned char r3;
+unsigned char r4;
+unsigned char r5;
+unsigned char r6;
+unsigned char r7;
+unsigned char r8;
+unsigned char r9;
+unsigned char r10;
+unsigned char r11;
+unsigned char r12;
+unsigned char r13;
+unsigned char r14;
+unsigned char r15;
+
+//The load function reads the assembled sia code, and stores it into memory.
 int load(char * filename){
   //Initialize and open the file
   FILE *fptr;
   fptr = fopen(filename, "rb");
 
+  //Check if the file is non-existant 
   if(fptr == NULL){
     fclose(fptr);
     return -1;
@@ -50,7 +81,7 @@ int load(char * filename){
     return -1;
   }
 
-  //Print the hex
+  //Print the hex for testing
   int x;
   for(x = 0; x < fileSize; x++){       
       printf("%02x", memory[x]);
@@ -66,6 +97,7 @@ int load(char * filename){
 int main(int argc, char **argv) {
 
   memory = (unsigned char *) malloc(10000);
+  unsigned char * currentIns;
 
   //Check if the correct number of arguments were supplied
   if(argc < 2){
@@ -92,6 +124,4 @@ int main(int argc, char **argv) {
 
   //return success
   return 1;
-
 }
-
