@@ -94,10 +94,23 @@ int load(char * filename){
   return 1;
 }
 
+int fetch(){
+
+}
+
+int dispatch(){
+
+}
+
+int store(){
+
+}
+
+
 int main(int argc, char **argv) {
 
   memory = (unsigned char *) malloc(10000);
-  unsigned char * currentIns;
+  unsigned char * currentInstruction;
 
   //Check if the correct number of arguments were supplied
   if(argc < 2){
@@ -118,6 +131,17 @@ int main(int argc, char **argv) {
   if (load(filename) == -1){
     puts("ERROR: siavm failed loading file");
   }
+
+  //Run flag
+  int halt = 0;
+  //Run loop
+  while(halt != 1){
+    //Fetch: read 2 bytes to current instruction
+    //Dispatch: read current instruction, population registers, fetch more
+    //Execute: Store result into result register
+    //Store: Store result register into mem, or register
+  }
+
 
   //free unsigned char array memory
   free(memory);

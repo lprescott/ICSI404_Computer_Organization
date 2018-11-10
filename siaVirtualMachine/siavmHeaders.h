@@ -1,2 +1,4 @@
 int load(char * filename);
-void hexDump (char *desc, void *addr, int len);
+int fetch();
+int dispatch();
+int store();
