@@ -16,10 +16,15 @@
 //Global variables:
 
 /*
-  Allocate space for your virtual machine’s memory. 10k or so as unsigned byte 
-  should be enough. 
+  Initialize virtual machine’s memory. 
 */
 unsigned char * memory; 
+
+/*
+  Initialize virtual machine’s current instruction.
+*/
+unsigned char * currentInstruction;
+
 
 /*
   The program counter internal register, starting at 0, using a unsigned char
@@ -31,7 +36,7 @@ unsigned char * memory;
   result is an unsigned int, as it must be stored in a register for multiple 
   instructions.
 */
-unsigned char PC = 0;
+unsigned char pc = 0;
 long unsigned int op1;
 long unsigned int op2;
 unsigned char result;
@@ -81,11 +86,13 @@ int load(char * filename){
     return -1;
   }
 
+  /*
   //Print the hex for testing
   int x;
   for(x = 0; x < fileSize; x++){       
-      printf("%02x", memory[x]);
+    printf("%02x", memory[x]);
   }
+  */
 
   //Close the file
   fclose(fptr);
@@ -99,7 +106,29 @@ int load(char * filename){
   Store them in an internal array of bytes, currentInstruction.
 */
 int fetch(){
+  currentInstruction = calloc(4, sizeof(unsigned char));
+  
+  int temp = pc;
+  for(int x = 0; x < 2; x++){
 
+    currentInstruction[x] = memory[pc+x];
+
+    if(currentInstruction[x] == 0x00){
+      free(currentInstruction);
+      currentInstruction = NULL;
+      return 1;
+    }
+  }
+
+  printf("%04d ", pc);
+  for (int y = 0; y < 2; y++) {
+    printf("%02x ", currentInstruction[y]);
+  }
+  printf("\n");
+
+  pc += 2;
+
+  free(currentInstruction);
 }
 
 /*
@@ -129,7 +158,6 @@ int store(){
 int main(int argc, char **argv) {
 
   memory = (unsigned char *) malloc(10000);
-  unsigned char * currentInstruction;
 
   //Check if the correct number of arguments were supplied
   if(argc < 2){
@@ -149,6 +177,8 @@ int main(int argc, char **argv) {
 
   if (load(filename) == -1){
     puts("ERROR: siavm failed loading file");
+    free(memory);
+    return -1;
   }
 
   //Run flag
@@ -156,11 +186,36 @@ int main(int argc, char **argv) {
   //Run loop
   while(halt != 1){
     //Fetch: read 2 bytes to current instruction
-    //Dispatch: read current instruction, population registers, fetch more
-    //Execute: Store result into result register
-    //Store: Store result register into mem, or register
-  }
+    if(fetch() == -1){
+      puts("ERROR: siavm could not fetch instruction");
+      free(memory);
+      return -1;
+    }
 
+    //Dispatch: read current instruction, population registers, fetch more
+    if(dispatch() == -1){
+      puts("ERROR: siavm could not dispatch instruction");
+      free(memory);
+      return -1;
+    }
+    //Execute: Store result into result register
+    if(execute() == -1){
+      puts("ERROR: siavm could not execute instruction");
+      free(memory);
+      return -1;
+    }
+    //Store: Store result register into mem, or register
+    if(store() == -1){
+      puts("ERROR: siavm could not store instruction");
+      free(memory);
+      return -1;
+    }
+    //If there are no more instructions
+    if(currentInstruction == NULL){
+      halt = 1;
+      free(currentInstruction);
+    }
+  }
 
   //free unsigned char array memory
   free(memory);
