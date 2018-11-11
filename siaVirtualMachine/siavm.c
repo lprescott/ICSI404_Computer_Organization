@@ -118,13 +118,6 @@ int fetch(){
 
     //Add the memory's 2 bytes to currentInstruction
     currentInstruction[x] = memory[pc+x];
-
-    //If the current instruction is zero, return
-    if(currentInstruction[x] == 0x00){
-      free(currentInstruction);
-      currentInstruction = NULL;
-      return 1;
-    }
   }
 
   //Print the hex for testing
@@ -134,11 +127,15 @@ int fetch(){
   }
   printf("\n");
 
+  //If the current instruction is zero, return
+  if(currentInstruction[0] == 0){
+    free(currentInstruction);
+    currentInstruction = NULL;
+    return 1;
+  }
+
   //Increment the pc by 2 bytes
   pc += 2;
-
-  //Free the current instruction
-  free(currentInstruction);
 }
 
 /*
@@ -151,6 +148,9 @@ int dispatch(){
   if(currentInstruction == NULL){
     return 1;
   }
+  
+  printf("opcode: %01x\n", currentInstruction[0] >> 4);
+  
 }
 
 /*
@@ -175,7 +175,8 @@ int store(){
 
 int main(int argc, char **argv) {
 
-  memory = (unsigned char *) malloc(10000);
+  //Allocate 10000 unsigned chars in space for memory
+  memory = (unsigned char *) malloc(10000 * sizeof (unsigned char));
 
   //Check if the correct number of arguments were supplied
   if(argc < 2){
@@ -193,6 +194,7 @@ int main(int argc, char **argv) {
   //A string to hold the filename
   char * filename = argv[1];
 
+  //Check if file is loadable
   if (load(filename) == -1){
     puts("ERROR: siavm failed loading file");
     free(memory);
@@ -232,10 +234,14 @@ int main(int argc, char **argv) {
     if(currentInstruction == NULL){
       halt = 1;
     }
+
+    //Free the current instruction
+    free(currentInstruction);
   }
 
   //free unsigned char array memory
   free(memory);
+  
 
   //return success
   return 1;
