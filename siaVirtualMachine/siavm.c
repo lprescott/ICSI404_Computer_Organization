@@ -148,7 +148,6 @@ int dispatch(){
   
   //Fetch any additional memory needed to complete the instruction.
   if(currentInstruction[0]>>4 == 0xA | currentInstruction[0]>>4 == 0xB | currentInstruction[0]>>4 == 0xC | currentInstruction[0]>>4 == 0xD){
-    
 
     int temp = pc;
     //Loop twice
@@ -157,7 +156,6 @@ int dispatch(){
       //Add the memory's 2 bytes to currentInstruction
       currentInstruction[x] = memory[temp];
       temp+=1;
-
     }
 
     //Print the 4 byte instruction for testing
@@ -186,8 +184,8 @@ int dispatch(){
   if((currentInstruction[0]>>4 != 0xA) & (currentInstruction[0]>>4 != 0xB) & (currentInstruction[0]>>4 != 0x8) & (currentInstruction[0]>>4 != 0xC )){
 
     switch(currentInstruction[0]>>4) {
+      
 
-      //3R
       case 0x1: //3R
       case 0x2:
       case 0x3:
@@ -209,6 +207,8 @@ int dispatch(){
         break;
 
       case 0xD: //iterateover
+        op1 = (currentInstruction[2] << 4) & currentInstruction[3];
+        op2 = ((((currentInstruction[4] << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4;
         break;
 
       case 0xE: //load
