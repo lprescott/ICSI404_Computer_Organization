@@ -107,11 +107,8 @@ int load(char * filename){
 */
 int fetch(){
 
-  //allocated the currentInstructions 2 bytes
-  currentInstruction = calloc(2, sizeof(unsigned char));
-  
-  //Assign temp to the pc
-  int temp = pc;
+  //allocated the currentInstructions 4 possible bytes
+  currentInstruction = calloc(4, sizeof(unsigned char));
 
   //Loop twice
   for(int x = 0; x < 2; x++){
@@ -121,11 +118,13 @@ int fetch(){
   }
 
   //Print the hex for testing
+  /*
   printf("%04d ", pc);
   for (int y = 0; y < 2; y++) {
     printf("%02x ", currentInstruction[y]);
   }
   printf("\n");
+  */
 
   //If the current instruction is zero, return
   if(currentInstruction[0] == 0){
@@ -149,8 +148,35 @@ int dispatch(){
     return 1;
   }
   
-  printf("opcode: %01x\n", currentInstruction[0] >> 4);
   
+  if(currentInstruction[0]>>4 == 0xA | currentInstruction[0]>>4 == 0xB | currentInstruction[0]>>4 == 0xC | currentInstruction[0]>>4 == 0xD){
+    
+    int temp = pc;
+    //Loop twice
+    for(int x = 2; x < 4; x++){
+
+      //Add the memory's 2 bytes to currentInstruction
+      currentInstruction[x] = memory[temp];
+      temp+=1;
+
+    }
+
+    printf("%04d ", pc-2);
+    for (int y = 0; y < 4; y++) {
+      printf("%02x ", currentInstruction[y]);
+    }
+    printf("\n");
+
+    pc +=2;
+
+  } else{
+
+    printf("%04d ", pc-2);
+    for (int y = 0; y < 2; y++) {
+      printf("%02x ", currentInstruction[y]);
+    }
+    printf("\n");
+  }
 }
 
 /*
