@@ -106,13 +106,20 @@ int load(char * filename){
   Store them in an internal array of bytes, currentInstruction.
 */
 int fetch(){
-  currentInstruction = calloc(4, sizeof(unsigned char));
+
+  //allocated the currentInstructions 2 bytes
+  currentInstruction = calloc(2, sizeof(unsigned char));
   
+  //Assign temp to the pc
   int temp = pc;
+
+  //Loop twice
   for(int x = 0; x < 2; x++){
 
+    //Add the memory's 2 bytes to currentInstruction
     currentInstruction[x] = memory[pc+x];
 
+    //If the current instruction is zero, return
     if(currentInstruction[x] == 0x00){
       free(currentInstruction);
       currentInstruction = NULL;
@@ -120,14 +127,17 @@ int fetch(){
     }
   }
 
+  //Print the hex for testing
   printf("%04d ", pc);
   for (int y = 0; y < 2; y++) {
     printf("%02x ", currentInstruction[y]);
   }
   printf("\n");
 
+  //Increment the pc by 2 bytes
   pc += 2;
 
+  //Free the current instruction
   free(currentInstruction);
 }
 
@@ -137,23 +147,31 @@ int fetch(){
   Fetch any additional memory needed to complete the instruction.
 */
 int dispatch(){
-
+  //Check if the current instruction is empty, halt
+  if(currentInstruction == NULL){
+    return 1;
+  }
 }
 
 /*
   Switch statement that “does the work” and stores the work into Result
 */
 int execute(){
-
+  //Check if the current instruction is empty, halt
+  if(currentInstruction == NULL){
+    return 1;
+  }
 }
 
 /*
   Write result into final register or memory address.
 */
 int store(){
-
+  //Check if the current instruction is empty, halt
+  if(currentInstruction == NULL){
+    return 1;
+  }
 }
-
 
 int main(int argc, char **argv) {
 
@@ -191,7 +209,6 @@ int main(int argc, char **argv) {
       free(memory);
       return -1;
     }
-
     //Dispatch: read current instruction, population registers, fetch more
     if(dispatch() == -1){
       puts("ERROR: siavm could not dispatch instruction");
@@ -210,10 +227,10 @@ int main(int argc, char **argv) {
       free(memory);
       return -1;
     }
-    //If there are no more instructions
+
+    //Check if there are no more instructions
     if(currentInstruction == NULL){
       halt = 1;
-      free(currentInstruction);
     }
   }
 
