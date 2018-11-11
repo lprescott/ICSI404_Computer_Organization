@@ -9,6 +9,7 @@
 //standard c libraries
 #include <stdio.h> 
 #include <stdlib.h>
+#include <string.h>
 
 // included external header files containing prototypes
 #include "siavmHeaders.h"
@@ -132,9 +133,6 @@ int fetch(){
     currentInstruction = NULL;
     return 1;
   }
-
-  //Increment the pc by 2 bytes
-  pc += 2;
 }
 
 /*
@@ -148,9 +146,10 @@ int dispatch(){
     return 1;
   }
   
-  
+  //Fetch any additional memory needed to complete the instruction.
   if(currentInstruction[0]>>4 == 0xA | currentInstruction[0]>>4 == 0xB | currentInstruction[0]>>4 == 0xC | currentInstruction[0]>>4 == 0xD){
     
+
     int temp = pc;
     //Loop twice
     for(int x = 2; x < 4; x++){
@@ -161,22 +160,70 @@ int dispatch(){
 
     }
 
-    printf("%04d ", pc-2);
+    //Print the 4 byte instruction for testing
+    printf("%04d ", pc);
     for (int y = 0; y < 4; y++) {
       printf("%02x ", currentInstruction[y]);
     }
     printf("\n");
 
+    //Add 2 more bytes to program counter
     pc +=2;
 
   } else{
 
-    printf("%04d ", pc-2);
+    //Print the 2 bytes instruction for testing
+    printf("%04d ", pc);
     for (int y = 0; y < 2; y++) {
       printf("%02x ", currentInstruction[y]);
     }
     printf("\n");
   }
+
+  printf("opcode: %x\n\n", currentInstruction[0]>>4);
+
+  //If op1 and op2 need to be populated
+  if((currentInstruction[0]>>4 != 0xA) & (currentInstruction[0]>>4 != 0xB) & (currentInstruction[0]>>4 != 0x8) & (currentInstruction[0]>>4 != 0xC )){
+
+    switch(currentInstruction[0]>>4) {
+
+      //3R
+      case 0x1: //3R
+      case 0x2:
+      case 0x3:
+      case 0x4:
+      case 0x5:
+      case 0x6:
+        op1 = currentInstruction[1];
+        op2 = currentInstruction[2];
+        break;
+
+      case 0x7: //sft
+        op1 = currentInstruction[1];
+        op2 = ((currentInstruction[2] << 4) & currentInstruction[3]) & 0x1F;
+        break;
+
+      case 0x9: //Add immediate
+        op1 = currentInstruction[1];
+        op2 = (currentInstruction[2] << 4) & currentInstruction[3];
+        break;
+
+      case 0xD: //iterateover
+        break;
+
+      case 0xE: //load
+      case 0xF: //store
+        op1 = currentInstruction[2];
+        op2 = currentInstruction[3];
+        break;
+        
+      default: 
+        return -1;
+    }
+  }
+
+  //Increment the pc by 2 bytes
+  pc += 2;
 }
 
 /*
