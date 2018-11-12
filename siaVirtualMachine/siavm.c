@@ -201,6 +201,7 @@ int dispatch(){
 
     case 0x8: //interrupt, int
       op1 = (((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3];
+      break;
 
     case 0x9: //addimmediate, ai 
       op1 = currentInstruction[1];
@@ -210,9 +211,11 @@ int dispatch(){
     case 0xA: //branchifequal, br
     case 0xB: //branchifless, br
       op1 = (((((((currentInstruction[3] << 4) & currentInstruction[4]) << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
+      break;
 
     case 0xC: //jump, jmp
       op1 = ((((((((((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3]) << 4) & currentInstruction[4]) << 4) & currentInstruction[5] << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
+      break;
 
     case 0xD: //iterateover, iter TODO
       op1 = (currentInstruction[2] << 4) & currentInstruction[3];
@@ -228,7 +231,6 @@ int dispatch(){
       return -1;
   }
 
-
   //Increment the pc by 2 bytes
   pc += 2;
 }
@@ -240,6 +242,43 @@ int execute(){
   //Check if the current instruction is empty, halt
   if(currentInstruction == NULL){
     return 1;
+  }
+    
+  switch(currentInstruction[0]>>4) {
+    case 0x0: break;
+    case 0x1: //add, 3r
+    case 0x2: //and, 3r
+    case 0x3: //divide, 3r
+    case 0x4: //multiply, 3r
+    case 0x5: //subtract, 3r
+    case 0x6: //or, 3r
+      break;
+
+    case 0x7: //left/right shift, sft
+      break;
+
+    case 0x8: //interrupt, int
+      break;
+
+    case 0x9: //addimmediate, ai 
+      break;
+
+    case 0xA: //branchifequal, br
+    case 0xB: //branchifless, br
+      break;
+
+    case 0xC: //jump, jmp
+      break;
+
+    case 0xD: //iterateover, iter TODO
+      break;
+
+    case 0xE: //load, ls 
+    case 0xF: //store, ls
+      break;
+
+    default: 
+      return -1;
   }
 }
 
