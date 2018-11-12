@@ -209,12 +209,14 @@ int dispatch(){
 
     case 0xA: //branchifequal, br
     case 0xB: //branchifless, br
+      op1 = (((((((currentInstruction[3] << 4) & currentInstruction[4]) << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
 
     case 0xC: //jump, jmp
+      op1 = ((((((((((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3]) << 4) & currentInstruction[4]) << 4) & currentInstruction[5] << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
 
     case 0xD: //iterateover, iter TODO
       op1 = (currentInstruction[2] << 4) & currentInstruction[3];
-      op2 = ((((currentInstruction[4] << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4;
+      op2 = (((((currentInstruction[4] << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
       break;
 
     case 0xE: //load, ls 
