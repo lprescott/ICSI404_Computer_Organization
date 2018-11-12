@@ -180,47 +180,52 @@ int dispatch(){
 
   printf("opcode: %x\n\n", currentInstruction[0]>>4);
 
-  //If op1 and op2 need to be populated
-  if((currentInstruction[0]>>4 != 0xA) & (currentInstruction[0]>>4 != 0xB) & (currentInstruction[0]>>4 != 0x8) & (currentInstruction[0]>>4 != 0xC )){
+  //Pupulate op1, and r2 if needed
+  switch(currentInstruction[0]>>4) {
 
-    switch(currentInstruction[0]>>4) {
+    case 0x0: break;
+    case 0x1: //add, 3r
+    case 0x2: //and, 3r
+    case 0x3: //divide, 3r
+    case 0x4: //multiply, 3r
+    case 0x5: //subtract, 3r
+    case 0x6: //or, 3r
+      op1 = currentInstruction[1];
+      op2 = currentInstruction[2];
+      break;
+
+    case 0x7: //left/right shift, sft
+      op1 = currentInstruction[1];
+      op2 = ((currentInstruction[2] & 0x1) << 5) & currentInstruction[3];
+      break;
+
+    case 0x8: //interrupt, int
+      op1 = (((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3];
+
+    case 0x9: //addimmediate, ai 
+      op1 = currentInstruction[1];
+      op2 = (currentInstruction[2] << 4) & currentInstruction[3];
+      break;
+
+    case 0xA: //branchifequal, br
+    case 0xB: //branchifless, br
+
+    case 0xC: //jump, jmp
+
+    case 0xD: //iterateover, iter TODO
+      op1 = (currentInstruction[2] << 4) & currentInstruction[3];
+      op2 = ((((currentInstruction[4] << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4;
+      break;
+
+    case 0xE: //load, ls 
+    case 0xF: //store, ls
+      op1 = currentInstruction[3];
+      break;
       
-
-      case 0x1: //3R
-      case 0x2:
-      case 0x3:
-      case 0x4:
-      case 0x5:
-      case 0x6:
-        op1 = currentInstruction[1];
-        op2 = currentInstruction[2];
-        break;
-
-      case 0x7: //sft
-        op1 = currentInstruction[1];
-        op2 = ((currentInstruction[2] << 4) & currentInstruction[3]) & 0x1F;
-        break;
-
-      case 0x9: //Add immediate
-        op1 = currentInstruction[1];
-        op2 = (currentInstruction[2] << 4) & currentInstruction[3];
-        break;
-
-      case 0xD: //iterateover
-        op1 = (currentInstruction[2] << 4) & currentInstruction[3];
-        op2 = ((((currentInstruction[4] << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4;
-        break;
-
-      case 0xE: //load
-      case 0xF: //store
-        op1 = currentInstruction[2];
-        op2 = currentInstruction[3];
-        break;
-        
-      default: 
-        return -1;
-    }
+    default: 
+      return -1;
   }
+
 
   //Increment the pc by 2 bytes
   pc += 2;
