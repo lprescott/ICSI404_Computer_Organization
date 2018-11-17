@@ -286,7 +286,6 @@ int execute(){
       result = memory[registers[currentInstruction[2]] + (op1/4)];
       break;
     case 0xF: //store, ls
-      memory[registers[currentInstruction[2]] + (op1/4)] = registers[currentInstruction[1]];
       break;
 
     default: 
@@ -301,6 +300,50 @@ int store(){
   //Check if the current instruction is empty, halt
   if(currentInstruction == NULL){
     return 1;
+  }
+
+  switch(currentInstruction[0]>>4) {
+    case 0x0: break;
+    case 0x1: //add, 3r
+    case 0x2: //and, 3r
+    case 0x3: //divide, 3r
+    case 0x4: //multiply, 3r
+    case 0x5: //subtract, 3r
+    case 0x6: //or, 3r
+      registers[currentInstruction[3]] = result;
+      break;
+
+    case 0x7: //left/right shift, sft
+      registers[currentInstruction[1]] = result;
+      break;
+
+    case 0x8: //interrupt, int
+      break;
+
+    case 0x9: //addimmediate, ai 
+      registers[currentInstruction[1]] = result;
+      break;
+
+    case 0xA: //branchifequal, br
+    case 0xB: //branchifless, br
+      break;
+
+    case 0xC: //jump, jmp
+      break;
+
+    case 0xD: //iterateover, iter TODO
+      registers[currentInstruction[1]] = result;
+      break;
+
+    case 0xE: //load, ls 
+      registers[currentInstruction[1]] = result;
+      break;
+    case 0xF: //store, ls
+      memory[registers[currentInstruction[2]] + (op1/4)] = registers[currentInstruction[1]];
+      break;
+
+    default: 
+      return -1;
   }
 }
 
@@ -375,7 +418,6 @@ int main(int argc, char **argv) {
   //free unsigned char array memory
   free(memory);
   
-
   //return success
   return 1;
 }
