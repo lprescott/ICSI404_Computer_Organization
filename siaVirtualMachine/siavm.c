@@ -28,8 +28,8 @@ unsigned char * currentInstruction;
 
 
 /*
-  The program counter internal register, starting at 0, using a unsigned char
-  as to replicate the 4 bit registers of the emulated cpu.
+  The program counter internal register, starting at 0, using a long unsigned 
+  int as to be able to store a large positive value.
 
   The op1, and op2 registers, are long unsigned ints as to be able to store 
   the largest possible operands in the sia instruction set.
@@ -37,7 +37,7 @@ unsigned char * currentInstruction;
   result is an unsigned int, as it must be stored in a register for multiple 
   instructions.
 */
-unsigned char pc = 0;
+long unsigned int pc = 0;
 long unsigned int op1;
 long unsigned int op2;
 unsigned char result;
@@ -118,7 +118,7 @@ int dispatch(){
   //Fetch any additional memory needed to complete the instruction.
   if(currentInstruction[0]>>4 == 0xA | currentInstruction[0]>>4 == 0xB | currentInstruction[0]>>4 == 0xC | currentInstruction[0]>>4 == 0xD){
 
-    int temp = pc;
+    long unsigned int temp = pc;
     //Loop twice
     for(int x = 2; x < 4; x++){
 
@@ -147,7 +147,7 @@ int dispatch(){
     printf("\n");
   }
 
-  printf("opcode: %x\n\n", currentInstruction[0]>>4);
+  printf("opcode: %01x\n\n", currentInstruction[0]>>4);
 
   //Populate op1, and op2 if needed
   switch(currentInstruction[0]>>4) {
@@ -204,34 +204,89 @@ int execute(){
   switch(currentInstruction[0]>>4) {
     case 0x0: break;
     case 0x1: //add, 3r
+      result = registers[currentInstruction[1]] + registers[currentInstruction[2]];
+      break;
     case 0x2: //and, 3r
+      result = registers[currentInstruction[1]] & registers[currentInstruction[2]];
+      break;
     case 0x3: //divide, 3r
+      result = registers[currentInstruction[1]] / registers[currentInstruction[2]];
+      break;
     case 0x4: //multiply, 3r
+      result = registers[currentInstruction[1]] * registers[currentInstruction[2]];
+      break;
     case 0x5: //subtract, 3r
+      result = registers[currentInstruction[1]] - registers[currentInstruction[2]];
+      break;
     case 0x6: //or, 3r
+      result = registers[currentInstruction[1]] | registers[currentInstruction[2]];
       break;
 
     case 0x7: //left/right shift, sft
+      if(op1 == 1){
+        //rightshift
+        result = registers[currentInstruction[1]] >> op2;
+      } else if(op1 == 0){
+        //leftshift
+        result = registers[currentInstruction[1]] << op2;
+      } else{
+        return -1;
+      }
       break;
 
     case 0x8: //interrupt, int
+      if(op1 == 0){
+        //print all the registers
+        int x;
+        for(x = 0; x < 16; x++){
+          printf("r%d: %d\n", x, registers[x]);
+        }
+      } else if(op1 == 1){
+        //print the memory up to 100
+        int x;
+        for(x = 0; x < 100; x++){
+          printf("%02x ", memory[x]);
+        }
+      } else{
+        return -1;
+      }
       break;
 
     case 0x9: //addimmediate, ai 
+      result = registers[currentInstruction[1]] + (signed char)op1;
       break;
 
     case 0xA: //branchifequal, br
+      if(registers[currentInstruction[1]] == registers[currentInstruction[2]]){
+        pc = (long unsigned int) op1;
+        break;
+      } else{
+        break;
+      }
     case 0xB: //branchifless, br
-      break;
+      if(registers[currentInstruction[1]] < registers[currentInstruction[2]]){
+        pc = (long unsigned int) op1;
+        break;
+      } else{
+        break;
+      }
 
     case 0xC: //jump, jmp
+      pc = (float) op1;
       break;
 
     case 0xD: //iterateover, iter TODO
+      if(memory[registers[currentInstruction[1]] + (op1/4)] != 0){
+        result = memory[registers[currentInstruction[1]] + (op1/4)];
+        pc -= (op2/4);
+      }
       break;
 
     case 0xE: //load, ls 
+      result = memory[registers[currentInstruction[2]] + (op1/4)];
+      break;
     case 0xF: //store, ls
+      memory[registers[currentInstruction[2]] + (op1/4)] = registers[currentInstruction[1]];
       break;
 
     default: 
