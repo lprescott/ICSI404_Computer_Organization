@@ -44,23 +44,9 @@ unsigned char result;
 
 /*
   Other registers: unsigned chars as to hold the maximum values of 4 bits.
+  There are 16 of them, stored in an array for ease of access.
 */
-unsigned char r0;
-unsigned char r1;
-unsigned char r2;
-unsigned char r3;
-unsigned char r4;
-unsigned char r5;
-unsigned char r6;
-unsigned char r7;
-unsigned char r8;
-unsigned char r9;
-unsigned char r10;
-unsigned char r11;
-unsigned char r12;
-unsigned char r13;
-unsigned char r14;
-unsigned char r15;
+unsigned char registers[16];
 
 //The load function reads the assembled sia code, and stores it into memory.
 int load(char * filename){
@@ -87,14 +73,6 @@ int load(char * filename){
     return -1;
   }
 
-  /*
-  //Print the hex for testing
-  int x;
-  for(x = 0; x < fileSize; x++){       
-    printf("%02x", memory[x]);
-  }
-  */
-
   //Close the file
   fclose(fptr);
 
@@ -117,15 +95,6 @@ int fetch(){
     //Add the memory's 2 bytes to currentInstruction
     currentInstruction[x] = memory[pc+x];
   }
-
-  //Print the hex for testing
-  /*
-  printf("%04d ", pc);
-  for (int y = 0; y < 2; y++) {
-    printf("%02x ", currentInstruction[y]);
-  }
-  printf("\n");
-  */
 
   //If the current instruction is zero, return
   if(currentInstruction[0] == 0){
@@ -180,32 +149,20 @@ int dispatch(){
 
   printf("opcode: %x\n\n", currentInstruction[0]>>4);
 
-  //Pupulate op1, and r2 if needed
+  //Populate op1, and op2 if needed
   switch(currentInstruction[0]>>4) {
 
-    case 0x0: break;
-    case 0x1: //add, 3r
-    case 0x2: //and, 3r
-    case 0x3: //divide, 3r
-    case 0x4: //multiply, 3r
-    case 0x5: //subtract, 3r
-    case 0x6: //or, 3r
-      op1 = currentInstruction[1];
-      op2 = currentInstruction[2];
-      break;
-
     case 0x7: //left/right shift, sft
-      op1 = currentInstruction[1];
-      op2 = ((currentInstruction[2] & 0x1) << 5) & currentInstruction[3];
+      op1 = (currentInstruction[2] & 0x2) >> 1; //set for rightshift, clear for left shift
+      op2 = ((currentInstruction[2] & 0x1) << 5) & currentInstruction[3]; //shift amount
       break;
 
     case 0x8: //interrupt, int
       op1 = (((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3];
       break;
 
-    case 0x9: //addimmediate, ai 
-      op1 = currentInstruction[1];
-      op2 = (currentInstruction[2] << 4) & currentInstruction[3];
+    case 0x9: //addimmediate, ai
+      op1 = (currentInstruction[2] << 4) & currentInstruction[3];
       break;
 
     case 0xA: //branchifequal, br
@@ -228,7 +185,7 @@ int dispatch(){
       break;
       
     default: 
-      return -1;
+      break;
   }
 
   //Increment the pc by 2 bytes
@@ -296,6 +253,8 @@ int main(int argc, char **argv) {
 
   //Allocate 10000 unsigned chars in space for memory
   memory = (unsigned char *) malloc(10000 * sizeof (unsigned char));
+
+  memset(registers, 0, sizeof(registers)); //sets the registers explicitly to 0
 
   //Check if the correct number of arguments were supplied
   if(argc < 2){
