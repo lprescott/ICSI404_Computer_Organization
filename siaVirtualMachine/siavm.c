@@ -145,8 +145,8 @@ int dispatch(){
   switch(currentInstruction[0]>>4) {
 
     case 0x7: //left/right shift, sft
-      op1 = (currentInstruction[2] & 0x2) >> 1; //set for rightshift, clear for left shift
-      op2 = ((currentInstruction[2] & 0x1) << 5) & currentInstruction[3]; //shift amount
+      op1 = (currentInstruction[1] & 0x20) >> 5; //set for rightshift, clear for left shift
+      op2 = currentInstruction[1] & 0x1F; //shift amount
       break;
 
     case 0x8: //interrupt, int
@@ -154,26 +154,26 @@ int dispatch(){
       break;
 
     case 0x9: //addimmediate, ai
-      op1 = (currentInstruction[2] << 4) & currentInstruction[3];
+      op1 = currentInstruction[1];
       break;
 
     case 0xA: //branchifequal, br
     case 0xB: //branchifless, br
-      op1 = (((((((currentInstruction[3] << 4) & currentInstruction[4]) << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
+      op1 = ((((currentInstruction[1] & 0x0F) << 8) | currentInstruction[2]) << 8) | currentInstruction[3];
       break;
 
     case 0xC: //jump, jmp
-      op1 = ((((((((((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3]) << 4) & currentInstruction[4]) << 4) & currentInstruction[5] << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
+      op1 = ((((((currentInstruction[0] & 0x0F) << 8) | currentInstruction[1]) << 8) | currentInstruction[2]) << 8) | currentInstruction[3];
       break;
 
     case 0xD: //iterateover, iter
-      op1 = (currentInstruction[2] << 4) & currentInstruction[3];
-      op2 = (((((currentInstruction[4] << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
+      op1 = currentInstruction[1];
+      op2 = (currentInstruction[2] << 8) | currentInstruction[3];
       break;
 
     case 0xE: //load, ls 
     case 0xF: //store, ls
-      op1 = currentInstruction[3]; //offset
+      op1 = currentInstruction[1] & 0x0F; //offset
       break;
       
     default: 
@@ -238,8 +238,9 @@ int execute(){
         //print the memory up to 100
         int x;
         for(x = 0; x < 100; x++){
-          if(x%10 == 0) printf("\n%04d ", x);
-          printf("%02x ", memory[x]);
+          if(x%10 == 0) printf("\n%08d ", x);
+          if(x%2 == 0) printf("%02x", memory[x]);
+          else printf("%02x ", memory[x]);
         }
       } 
       
