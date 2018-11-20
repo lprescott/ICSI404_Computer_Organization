@@ -190,6 +190,10 @@ int dispatch(){
   Switch statement that “does the work” and stores the work into Result
 */
 int execute(){
+
+  //This variable is used to keep track of the load instruction's starting address
+  int start; //the starting address to store to
+
   //Check if the current instruction is empty, halt
   if(currentInstruction == NULL){
     return 1;
@@ -275,7 +279,8 @@ int execute(){
       break;
 
     case 0xE: //load, ls 
-      result = memory[registers[currentInstruction[1] >> 4] + op1];
+      start = registers[currentInstruction[1] >> 4] + op1;
+      result = (((((memory[start] << 8) | memory[start+1]) << 8) | memory[start+2]) << 8) | memory[start+3];
       break;
     case 0xF: //store, ls
       break;
