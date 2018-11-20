@@ -196,33 +196,31 @@ int execute(){
   switch(currentInstruction[0]>>4) {
     case 0x0: break;
     case 0x1: //add, 3r
-      result = registers[currentInstruction[1]] + registers[currentInstruction[2]];
+      result = registers[currentInstruction[0] & 0x0F] + registers[currentInstruction[1] >> 4];
       break;
     case 0x2: //and, 3r
-      result = registers[currentInstruction[1]] & registers[currentInstruction[2]];
+      result = registers[currentInstruction[0] & 0x0F] & registers[currentInstruction[1] >> 4];
       break;
     case 0x3: //divide, 3r
-      result = registers[currentInstruction[1]] / registers[currentInstruction[2]];
+      result = registers[currentInstruction[0] & 0x0F] / registers[currentInstruction[1] >> 4];
       break;
     case 0x4: //multiply, 3r
-      result = registers[currentInstruction[1]] * registers[currentInstruction[2]];
+      result = registers[currentInstruction[0] & 0x0F] * registers[currentInstruction[1] >> 4];
       break;
     case 0x5: //subtract, 3r
-      result = registers[currentInstruction[1]] - registers[currentInstruction[2]];
+      result = registers[currentInstruction[0] & 0x0F] - registers[currentInstruction[1] >> 4];
       break;
     case 0x6: //or, 3r
-      result = registers[currentInstruction[1]] | registers[currentInstruction[2]];
+      result = registers[currentInstruction[0] & 0x0F] |     registers[currentInstruction[1] >> 4];
       break;
 
     case 0x7: //left/right shift, sft
       if(op1 == 1){
         //rightshift
-        result = registers[currentInstruction[1]] >> op2;
+        result = registers[currentInstruction[0] & 0x0F] >> op2;
       } else if(op1 == 0){
         //leftshift
-        result = registers[currentInstruction[1]] << op2;
-      } else{
-        return -1;
+        result = registers[currentInstruction[0] & 0x0F] << op2;
       }
       break;
 
@@ -243,22 +241,21 @@ int execute(){
           else printf("%02x ", memory[x]);
         }
       } 
-      
       break;
 
     case 0x9: //addimmediate, ai 
-      result = registers[currentInstruction[1]] + op1;
+      result = registers[currentInstruction[0] & 0x0F] + op1;
       break;
 
     case 0xA: //branchifequal, br
-      if(registers[currentInstruction[1]] == registers[currentInstruction[2]]){
+      if(registers[currentInstruction[0] & 0x0F] == registers[currentInstruction[1] >> 4]){
         pc += op1;
         break;
       } else{
         break;
       }
     case 0xB: //branchifless, br
-      if(registers[currentInstruction[1]] < registers[currentInstruction[2]]){
+      if(registers[currentInstruction[0] & 0x0F] < registers[currentInstruction[1] >> 4]){
         pc += op1;
         break;
       } else{
@@ -270,14 +267,14 @@ int execute(){
       break;
 
     case 0xD: //iterateover, iter
-      if(memory[registers[currentInstruction[1]] + op1] != 0){
-        result = memory[registers[currentInstruction[1]] + op1];
+      if(memory[registers[currentInstruction[0] & 0x0F] + op1] != 0){
+        result = memory[registers[currentInstruction[0] & 0x0F] + op1];
         pc -= op2;
       }
       break;
 
     case 0xE: //load, ls 
-      result = memory[registers[currentInstruction[2]] + op1];
+      result = memory[registers[currentInstruction[1] >> 4] + op1];
       break;
     case 0xF: //store, ls
       break;
