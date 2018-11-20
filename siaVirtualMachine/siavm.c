@@ -109,7 +109,7 @@ int dispatch(){
   //Fetch any additional memory needed to complete the instruction.
   if(currentInstruction[0]>>4 == 0xA | currentInstruction[0]>>4 == 0xB | currentInstruction[0]>>4 == 0xC | currentInstruction[0]>>4 == 0xD){
 
-    unsigned int temp = pc;
+    unsigned int temp = pc + 2;
     //Loop twice
     for(int x = 2; x < 4; x++){
 
@@ -118,9 +118,10 @@ int dispatch(){
       temp+=1;
     }
 
+    
     /*
     //Print the 4 byte instruction for testing
-    printf("%04u ", pc);
+    //printf("%04u ", pc);
     for (int y = 0; y < 4; y++) {
       printf("%02x ", currentInstruction[y]);
     }
@@ -255,6 +256,7 @@ int execute(){
     case 0xA: //branchifequal, br
       if(registers[currentInstruction[0] & 0x0F] == registers[currentInstruction[1] >> 4]){
         pc += op1;
+        printf("New pc: %d", pc);
         break;
       } else{
         break;
