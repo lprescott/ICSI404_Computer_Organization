@@ -119,27 +119,30 @@ int dispatch(){
       temp+=1;
     }
 
+    /*
     //Print the 4 byte instruction for testing
     printf("%04u ", pc);
     for (int y = 0; y < 4; y++) {
       printf("%02x ", currentInstruction[y]);
     }
     printf("\n");
+    */
 
     //Add 2 more bytes to program counter
     pc +=2;
 
   } else{
-
+    /*
     //Print the 2 bytes instruction for testing
     printf("%04u ", pc);
     for (int y = 0; y < 2; y++) {
       printf("%02x ", currentInstruction[y]);
     }
     printf("\n");
+    */
   }
 
-  printf("opcode: %01x\n\n", currentInstruction[0]>>4);
+  //printf("opcode: %01x\n\n", currentInstruction[0]>>4);
 
   //Populate op1, and op2 if needed
   switch(currentInstruction[0]>>4) {
@@ -227,7 +230,6 @@ int execute(){
     case 0x8: //interrupt, int
       if(op1 == 0){
         //print all the registers
-        printf("Op1: \"%d\"", op1);
         int x;
         for(x = 0; x < 16; x++){
           printf("r%d: %d\n", x, registers[x]);
