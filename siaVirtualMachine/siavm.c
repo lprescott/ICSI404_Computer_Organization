@@ -306,18 +306,18 @@ int store(){
     case 0x4: //multiply, 3r
     case 0x5: //subtract, 3r
     case 0x6: //or, 3r
-      registers[currentInstruction[3]] = result;
+      registers[currentInstruction[1] & 0x0F] = result;
       break;
 
     case 0x7: //left/right shift, sft
-      registers[currentInstruction[1]] = result;
+      registers[currentInstruction[0] & 0x0F] = result;
       break;
 
     case 0x8: //interrupt, int
       break;
 
     case 0x9: //addimmediate, ai 
-      registers[currentInstruction[1]] = result;
+      registers[currentInstruction[0] & 0x0F] = result;
       break;
 
     case 0xA: //branchifequal, br
@@ -328,16 +328,16 @@ int store(){
       break;
 
     case 0xD: //iterateover, iter
-      registers[currentInstruction[1]] = result;
+      registers[currentInstruction[0] & 0x0F] = result;
       break;
 
     case 0xE: //load, ls 
-      registers[currentInstruction[1]] = result;
+      registers[currentInstruction[0] & 0x0F] = result;
       break;
     case 0xF: //store, ls
 
-      value = registers[currentInstruction[1]];
-      start = registers[currentInstruction[2]] + op1;
+      value = registers[currentInstruction[0] & 0x0F];
+      start = registers[currentInstruction[1] >> 4] + op1;
 
       memory[start] = value >> 24;
       memory[start+1] = (value >> 16) & 0x0F;
