@@ -347,16 +347,16 @@ int store(){
       break;
     case 0xF: //store, ls
 
+      //store into memory by splitting value
       value = registers[currentInstruction[0] & 0x0F];
       start = registers[currentInstruction[1] >> 4] + op1;
-
-      printf("\nValue: %d, Start: %d\n", value, start);
 
       memory[start] = value >> 24;
       memory[start+1] = (value >> 16) & 0x00FF;
       memory[start+2] = (value >> 8) & 0x0000FF;
       memory[start+3] = value & 0x000000FF;
 
+      //increment pc
       pc += 2;
       break;
 

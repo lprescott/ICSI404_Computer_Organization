@@ -253,7 +253,7 @@ int main(int argc, char **argv) {
 			int byteCount = assembleLine(line,bytes);
 			//If no instruction was recognized, print error, and return -1
 			if (byteCount == 0) {
-				printf ("unknown instrution: %s\nExiting...\n", strtok(ltrim(line)," "));
+				printf ("unknown instruction: %s\nExiting...\n", strtok(ltrim(line)," "));
 				return -1;
 			}
 			fwrite(bytes,byteCount,1,dst);
