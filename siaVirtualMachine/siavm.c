@@ -150,7 +150,7 @@ int dispatch(){
       break;
 
     case 0x8: //interrupt, int
-      op1 = (((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3];
+      op1 = ((currentInstruction[0] & 0x0F) << 8) | currentInstruction[1];
       break;
 
     case 0x9: //addimmediate, ai
@@ -173,7 +173,7 @@ int dispatch(){
 
     case 0xE: //load, ls 
     case 0xF: //store, ls
-      op1 = currentInstruction[3];
+      op1 = currentInstruction[3]; //offset
       break;
       
     default: 
@@ -229,6 +229,7 @@ int execute(){
     case 0x8: //interrupt, int
       if(op1 == 0){
         //print all the registers
+        printf("Op1: \"%d\"", op1);
         int x;
         for(x = 0; x < 16; x++){
           printf("r%d: %d\n", x, registers[x]);
@@ -237,11 +238,11 @@ int execute(){
         //print the memory up to 100
         int x;
         for(x = 0; x < 100; x++){
-          printf("%x ", memory[x]);
+          if(x%10 == 0) printf("\n%04d ", x);
+          printf("%02x ", memory[x]);
         }
-      } else{
-        return -1;
-      }
+      } 
+      
       break;
 
     case 0x9: //addimmediate, ai 
@@ -289,6 +290,11 @@ int execute(){
   Write result into final register or memory address.
 */
 int store(){
+
+  //These variables are used to keep track of the store instruction's value and starting address
+  int value; //the value to store
+  int start; //the starting address to store to
+
   //Check if the current instruction is empty, halt
   if(currentInstruction == NULL){
     return 1;
@@ -331,8 +337,9 @@ int store(){
       registers[currentInstruction[1]] = result;
       break;
     case 0xF: //store, ls
-      int value = registers[currentInstruction[1]];
-      int start = registers[currentInstruction[2]] + op1;
+
+      value = registers[currentInstruction[1]];
+      start = registers[currentInstruction[2]] + op1;
 
       memory[start] = value >> 24;
       memory[start+1] = (value >> 16) & 0x0F;
