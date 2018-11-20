@@ -2,8 +2,7 @@
   * Title : SIA Virtual Machine 
   * Student : Luke Prescott 
   * Start : 11/08/2018 
-  * Desc : Create a command line application in C called siavm that takes as a 
-  *     parameter a filename (argv[1]). 
+  * Desc : Create a command line application in C called siavm that takes as a parameter a filename (argv[1]). 
   ***************************************/
 
 //standard c libraries
@@ -157,7 +156,7 @@ int dispatch(){
       break;
 
     case 0x9: //addimmediate, ai
-      op1 = currentInstruction[1];
+      op1 = (signed char) currentInstruction[1];
       break;
 
     case 0xA: //branchifequal, br
@@ -176,7 +175,7 @@ int dispatch(){
 
     case 0xE: //load, ls 
     case 0xF: //store, ls
-      op1 = currentInstruction[1] & 0x0F; //offset
+      op1 = (signed char) currentInstruction[1] & 0x0F; //offset
       break;
       
     default: 
