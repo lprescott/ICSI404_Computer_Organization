@@ -14,8 +14,6 @@
 // included external header files containing prototypes
 #include "siavmHeaders.h"
 
-//Global variables:
-
 /*
   Initialize virtual machine’s memory. 
 */
@@ -28,25 +26,19 @@ unsigned char * currentInstruction;
 
 
 /*
-  The program counter internal register, starting at 0, using a long unsigned 
-  int as to be able to store a large positive value.
-
-  The op1, and op2 registers, are long unsigned ints as to be able to store 
-  the largest possible operands in the sia instruction set.
-
-  result is an unsigned int, as it must be stored in a register for multiple 
-  instructions.
+  The internal register: pc is a unsigned int, as it cannot be negative.
+  The internal registers: op1, op2, and result are all signed ints.
 */
-long unsigned int pc = 0;
-long unsigned int op1;
-long unsigned int op2;
-unsigned char result;
+unsigned int pc = 0;
+int op1;
+int op2;
+int result;
 
 /*
   Other registers: unsigned chars as to hold the maximum values of 4 bits.
   There are 16 of them, stored in an array for ease of access.
 */
-unsigned char registers[16];
+int registers[16];
 
 //The load function reads the assembled sia code, and stores it into memory.
 int load(char * filename){
@@ -118,7 +110,7 @@ int dispatch(){
   //Fetch any additional memory needed to complete the instruction.
   if(currentInstruction[0]>>4 == 0xA | currentInstruction[0]>>4 == 0xB | currentInstruction[0]>>4 == 0xC | currentInstruction[0]>>4 == 0xD){
 
-    long unsigned int temp = pc;
+    unsigned int temp = pc;
     //Loop twice
     for(int x = 2; x < 4; x++){
 
@@ -128,7 +120,7 @@ int dispatch(){
     }
 
     //Print the 4 byte instruction for testing
-    printf("%04d ", pc);
+    printf("%04u ", pc);
     for (int y = 0; y < 4; y++) {
       printf("%02x ", currentInstruction[y]);
     }
@@ -140,7 +132,7 @@ int dispatch(){
   } else{
 
     //Print the 2 bytes instruction for testing
-    printf("%04d ", pc);
+    printf("%04u ", pc);
     for (int y = 0; y < 2; y++) {
       printf("%02x ", currentInstruction[y]);
     }
@@ -174,7 +166,7 @@ int dispatch(){
       op1 = ((((((((((currentInstruction[1] << 4) & currentInstruction[2]) << 4) & currentInstruction[3]) << 4) & currentInstruction[4]) << 4) & currentInstruction[5] << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
       break;
 
-    case 0xD: //iterateover, iter TODO
+    case 0xD: //iterateover, iter
       op1 = (currentInstruction[2] << 4) & currentInstruction[3];
       op2 = (((((currentInstruction[4] << 4) & currentInstruction[5]) << 4) & currentInstruction[6]) << 4) & currentInstruction[7];
       break;
@@ -245,7 +237,7 @@ int execute(){
         //print the memory up to 100
         int x;
         for(x = 0; x < 100; x++){
-          printf("%02x ", memory[x]);
+          printf("%x ", memory[x]);
         }
       } else{
         return -1;
@@ -253,37 +245,37 @@ int execute(){
       break;
 
     case 0x9: //addimmediate, ai 
-      result = registers[currentInstruction[1]] + (signed char)op1;
+      result = registers[currentInstruction[1]] + op1;
       break;
 
     case 0xA: //branchifequal, br
       if(registers[currentInstruction[1]] == registers[currentInstruction[2]]){
-        pc = (long unsigned int) op1;
+        pc += op1;
         break;
       } else{
         break;
       }
     case 0xB: //branchifless, br
       if(registers[currentInstruction[1]] < registers[currentInstruction[2]]){
-        pc = (long unsigned int) op1;
+        pc += op1;
         break;
       } else{
         break;
       }
 
     case 0xC: //jump, jmp
-      pc = (float) op1;
+      pc = op1;
       break;
 
-    case 0xD: //iterateover, iter TODO
-      if(memory[registers[currentInstruction[1]] + (op1/4)] != 0){
-        result = memory[registers[currentInstruction[1]] + (op1/4)];
-        pc -= (op2/4);
+    case 0xD: //iterateover, iter
+      if(memory[registers[currentInstruction[1]] + op1] != 0){
+        result = memory[registers[currentInstruction[1]] + op1];
+        pc -= op2;
       }
       break;
 
     case 0xE: //load, ls 
-      result = memory[registers[currentInstruction[2]] + (op1/4)];
+      result = memory[registers[currentInstruction[2]] + op1];
       break;
     case 0xF: //store, ls
       break;
@@ -331,7 +323,7 @@ int store(){
     case 0xC: //jump, jmp
       break;
 
-    case 0xD: //iterateover, iter TODO
+    case 0xD: //iterateover, iter
       registers[currentInstruction[1]] = result;
       break;
 
@@ -339,7 +331,13 @@ int store(){
       registers[currentInstruction[1]] = result;
       break;
     case 0xF: //store, ls
-      memory[registers[currentInstruction[2]] + (op1/4)] = registers[currentInstruction[1]];
+      int value = registers[currentInstruction[1]];
+      int start = registers[currentInstruction[2]] + op1;
+
+      memory[start] = value >> 24;
+      memory[start+1] = (value >> 16) & 0x0F;
+      memory[start+2] = (value >> 8) & 0x00F;
+      memory[start+3] = value & 0x000F;
       break;
 
     default: 
