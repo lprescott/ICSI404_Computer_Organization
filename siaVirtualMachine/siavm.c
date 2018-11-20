@@ -118,7 +118,6 @@ int dispatch(){
       temp+=1;
     }
 
-    
     /*
     //Print the 4 byte instruction for testing
     //printf("%04u ", pc);
@@ -127,9 +126,6 @@ int dispatch(){
     }
     printf("\n");
     */
-
-    //Add 2 more bytes to program counter
-    pc +=2;
 
   } else{
     /*
@@ -162,7 +158,7 @@ int dispatch(){
 
     case 0xA: //branchifequal, br
     case 0xB: //branchifless, br
-      op1 = ((((currentInstruction[1] & 0x0F) << 8) | currentInstruction[2]) << 8) | currentInstruction[3];
+      op1 = (signed int)((((currentInstruction[1] & 0x0F) << 8) | currentInstruction[2]) << 8) | currentInstruction[3];
       break;
 
     case 0xC: //jump, jmp
@@ -182,9 +178,6 @@ int dispatch(){
     default: 
       break;
   }
-
-  //Increment the pc by 2 bytes
-  pc += 2;
 }
 
 /*
@@ -236,7 +229,7 @@ int execute(){
         //print all the registers
         int x;
         for(x = 0; x < 16; x++){
-          printf("r%d: %d\n", x, registers[x]);
+          printf("r%d == %d\n", x, registers[x]);
         }
       } else if(op1 == 1){
         //print the memory up to 100
@@ -256,9 +249,9 @@ int execute(){
     case 0xA: //branchifequal, br
       if(registers[currentInstruction[0] & 0x0F] == registers[currentInstruction[1] >> 4]){
         pc += op1;
-        printf("New pc: %d", pc);
         break;
       } else{
+        pc += 4;
         break;
       }
     case 0xB: //branchifless, br
@@ -266,6 +259,7 @@ int execute(){
         pc += op1;
         break;
       } else{
+        pc += 4;
         break;
       }
 
@@ -277,6 +271,8 @@ int execute(){
       if(memory[registers[currentInstruction[0] & 0x0F] + op1] != 0){
         result = memory[registers[currentInstruction[0] & 0x0F] + op1];
         pc -= op2;
+      } else{
+        pc += 4;
       }
       break;
 
@@ -307,7 +303,9 @@ int store(){
   }
 
   switch(currentInstruction[0]>>4) {
-    case 0x0: break;
+    case 0x0:
+      pc += 2;
+      break;
     case 0x1: //add, 3r
     case 0x2: //and, 3r
     case 0x3: //divide, 3r
@@ -315,17 +313,21 @@ int store(){
     case 0x5: //subtract, 3r
     case 0x6: //or, 3r
       registers[currentInstruction[1] & 0x0F] = result;
+      pc += 2;
       break;
 
     case 0x7: //left/right shift, sft
       registers[currentInstruction[0] & 0x0F] = result;
+      pc += 2;
       break;
 
     case 0x8: //interrupt, int
+      pc += 2;
       break;
 
     case 0x9: //addimmediate, ai 
       registers[currentInstruction[0] & 0x0F] = result;
+      pc += 2;
       break;
 
     case 0xA: //branchifequal, br
@@ -341,6 +343,7 @@ int store(){
 
     case 0xE: //load, ls 
       registers[currentInstruction[0] & 0x0F] = result;
+      pc += 2;
       break;
     case 0xF: //store, ls
 
@@ -353,6 +356,8 @@ int store(){
       memory[start+1] = (value >> 16) & 0x00FF;
       memory[start+2] = (value >> 8) & 0x0000FF;
       memory[start+3] = value & 0x000000FF;
+
+      pc += 2;
       break;
 
     default: 
